@@ -19,7 +19,7 @@ public class Grafica extends javax.swing.JFrame {
     private Gestore gestore = new Gestore();
     private ArrayList<JButton> bottoni = new ArrayList<>();
     private ArrayList<JLabel> buche = new ArrayList<>();
-    Gestore punti = new Gestore();
+    private Gestore punti = new Gestore();
     private boolean giocoAttivo = true;
     private Thread threadTalpa;
     
@@ -28,27 +28,19 @@ public class Grafica extends javax.swing.JFrame {
      * Creates new form Grafica
      */
     public Grafica() {
+        
         initComponents();
         Panel.setLayout(null);
         Panel.setBounds(0, 0, getWidth(), getHeight());
         Panel.setVisible(true);
 
-        this.addComponentListener(new java.awt.event.ComponentAdapter() {
-            @Override
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                Panel.setBounds(0, 0, getWidth(), getHeight());
-                ridimensionaElementi(new ImageIcon(getClass().getResource("/images/BucaTalpa1.png")),
-                                     new ImageIcon(getClass().getResource("/images/TalpaVera.png")));
-                Panel.revalidate();
-                Panel.repaint();
-            }
-        });
-        ImageIcon iconTalpa = new ImageIcon(getClass().getResource("/images/TalpaVera.png"));
-        int nuovaLarghezza = iconTalpa.getIconWidth() / 2;
-        int nuovaAltezza = iconTalpa.getIconHeight() / 2;
-        ImageIcon talpaIconRidimensionata = new ImageIcon(iconTalpa.getImage().getScaledInstance(nuovaLarghezza, nuovaAltezza, Image.SCALE_SMOOTH));
-                
-        ArrayList<JLabel> buche = new ArrayList<>();
+        lblTerreno.setBounds(0, 0, Panel.getWidth(), Panel.getHeight());
+        aggiornaTerreno();
+
+        lblSchermataHome.setBounds(0, 0, getContentPane().getWidth(), getContentPane().getHeight());
+        aggiornaSfondoHome();
+    
+        buche.clear();
         buche.add(BucaLabel);
         buche.add(BucaLabel1);
         buche.add(BucaLabel2);
@@ -58,21 +50,8 @@ public class Grafica extends javax.swing.JFrame {
         buche.add(BucaLabel6);
         buche.add(BucaLabel7);
         buche.add(BucaLabel8);
-        
-        ImageIcon iconBucaOriginale = new ImageIcon(getClass().getResource("/images/BucaTalpa1.png"));
-        
-        ridimensionaElementi(iconBucaOriginale, iconTalpa);
 
-        for (JLabel buca : buche) {
-            int larghezza = (buca.getWidth() > 0) ? buca.getWidth() : 10;
-            int altezza = (buca.getHeight() > 0) ? buca.getHeight() : 5;
-            Image imgBuca = iconBucaOriginale.getImage().getScaledInstance(larghezza, altezza, Image.SCALE_SMOOTH);
-            buca.setIcon(new ImageIcon(imgBuca));
-        }
-        
-        int larghezzaTalpa = 20;
-        int altezzaTalpa = 20;
-
+        bottoni.clear();
         bottoni.add(Bottone1);
         bottoni.add(Bottone2);
         bottoni.add(Bottone3);
@@ -82,15 +61,64 @@ public class Grafica extends javax.swing.JFrame {
         bottoni.add(Bottone7);
         bottoni.add(Bottone8);
         bottoni.add(Bottone9);
+        
+        for (JLabel b : buche) Panel.add(b);
+        for (JButton b : bottoni) {
+            b.setOpaque(false);
+            b.setContentAreaFilled(false);
+            b.setBorderPainted(false);
+            b.setVisible(false);
+            Panel.add(b);
+        }
+
+        Panel.add(lblTerreno);
+        Panel.setComponentZOrder(lblTerreno, Panel.getComponentCount()-1);
+
+        aggiornaPosizioni();
+        aggiornaPosizioni();
+        
+        this.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+
+                Panel.setBounds(0, 0, getContentPane().getWidth(), getContentPane().getHeight());
+
+                lblTerreno.setBounds(0, 0, Panel.getWidth(), Panel.getHeight());
+                aggiornaTerreno();
+
+                lblSchermataHome.setBounds(0, 0, getContentPane().getWidth(), getContentPane().getHeight());
+                aggiornaSfondoHome();
+
+                aggiornaPosizioni();
+
+                Panel.revalidate();
+                Panel.repaint();
+            }
+        });
+        
+        Panel.setComponentZOrder(lblTerreno, Panel.getComponentCount()-1);
+        ImageIcon iconTalpa = new ImageIcon(getClass().getResource("/images/TalpaVera.png"));
+        int nuovaLarghezza = iconTalpa.getIconWidth() / 2;
+        int nuovaAltezza = iconTalpa.getIconHeight() / 2;
+        ImageIcon talpaIconRidimensionata = new ImageIcon(iconTalpa.getImage().getScaledInstance(nuovaLarghezza, nuovaAltezza, Image.SCALE_SMOOTH));
+        
+        ImageIcon iconBucaOriginale = new ImageIcon(getClass().getResource("/images/BucaTalpa1.png"));
+        
+        for (JLabel buca : buche) {
+            int larghezza = (buca.getWidth() > 0) ? buca.getWidth() : 10;
+            int altezza = (buca.getHeight() > 0) ? buca.getHeight() : 5;
+            Image imgBuca = iconBucaOriginale.getImage().getScaledInstance(larghezza, altezza, Image.SCALE_SMOOTH);
+            buca.setIcon(new ImageIcon(imgBuca));
+        }
+        
+        int larghezzaTalpa = 20;
+        int altezzaTalpa = 20;
     
         for (int i = 0; i < bottoni.size(); i++) {
             JButton t = bottoni.get(i);
             JLabel buca = buche.get(i);
 
-            t.setBounds(buca.getX() + (buca.getWidth() - nuovaLarghezza) / 2,
-                        buca.getY() - nuovaAltezza / 2,
-                        nuovaLarghezza,
-                        nuovaAltezza);
+            t.setBounds(buca.getX() + (buca.getWidth() - nuovaLarghezza) / 2, buca.getY() - nuovaAltezza / 2, nuovaLarghezza, nuovaAltezza);
             t.setOpaque(false);
             t.setContentAreaFilled(false);
             t.setBorderPainted(false);
@@ -130,7 +158,7 @@ public class Grafica extends javax.swing.JFrame {
         }
     }
     
-    private void ridimensionaElementi(ImageIcon iconBuca, ImageIcon iconTalpa) {
+    private void aggiornaPosizioni() {
         int panelWidth = Panel.getWidth() > 0 ? Panel.getWidth() : 300;
         int panelHeight = Panel.getHeight() > 0 ? Panel.getHeight() : 300;
 
@@ -141,26 +169,52 @@ public class Grafica extends javax.swing.JFrame {
 
         for (int i = 0; i < buche.size(); i++) {
             JLabel buca = buche.get(i);
+            JButton t = bottoni.get(i);
 
-            int x = (i % colonne) * distanzaX + distanzaX / 4;
-            int y = (i / colonne) * distanzaY + distanzaY / 4;
-            int larghezzaBuca = distanzaX / 2;
-            int altezzaBuca = distanzaY / 3;
+            int larghezzaBuca = (buca.getWidth() > 0 ? buca.getWidth() : 50) - 10;
+            int altezzaBuca = (buca.getHeight() > 0 ? buca.getHeight() : 40) - 5;
+
+            int larghezzaTalpa = t.getWidth() > 0 ? t.getWidth() : 30;
+            int altezzaTalpa = t.getHeight() > 0 ? t.getHeight() : 30;
+
+            int x = (i % colonne) * distanzaX + (distanzaX - larghezzaBuca) / 2;
+            int y = (i / colonne) * distanzaY + (distanzaY - altezzaBuca) / 2;
 
             buca.setBounds(x, y, larghezzaBuca, altezzaBuca);
-            Image imgBuca = iconBuca.getImage().getScaledInstance(larghezzaBuca, altezzaBuca, Image.SCALE_SMOOTH);
-            buca.setIcon(new ImageIcon(imgBuca));
 
-            JButton t = bottoni.get(i);
-            int larghezzaTalpa = larghezzaBuca / 2;
-            int altezzaTalpa = altezzaBuca / 2;
             int xTalpa = x + (larghezzaBuca - larghezzaTalpa) / 2;
             int yTalpa = y + (altezzaBuca - altezzaTalpa) / 2;
-
             t.setBounds(xTalpa, yTalpa, larghezzaTalpa, altezzaTalpa);
-            Image imgTalpa = iconTalpa.getImage().getScaledInstance(larghezzaTalpa, altezzaTalpa, Image.SCALE_SMOOTH);
-            t.setIcon(new ImageIcon(imgTalpa));
+
+            Panel.setComponentZOrder(t, 0);
+            Panel.setComponentZOrder(buca, 1);
         }
+    }
+    
+    private void aggiornaTerreno() {
+
+        ImageIcon icon = new ImageIcon(getClass().getResource("/images/Prato.png"));
+
+        Image img = icon.getImage().getScaledInstance(
+            Panel.getWidth(),
+            Panel.getHeight(),
+            Image.SCALE_SMOOTH
+        );
+
+        lblTerreno.setIcon(new ImageIcon(img));
+    }
+    
+    private void aggiornaSfondoHome() {
+
+        ImageIcon icon = new ImageIcon(getClass().getResource("/images/SchermataHome.png"));
+
+        Image img = icon.getImage().getScaledInstance(
+            lblSchermataHome.getWidth(),
+            lblSchermataHome.getHeight(),
+            Image.SCALE_SMOOTH
+        );
+
+        lblSchermataHome.setIcon(new ImageIcon(img));
     }
     
     private void mostraTalpa() {
@@ -206,8 +260,10 @@ public class Grafica extends javax.swing.JFrame {
         BucaLabel6 = new javax.swing.JLabel();
         BucaLabel7 = new javax.swing.JLabel();
         BucaLabel8 = new javax.swing.JLabel();
+        lblTerreno = new javax.swing.JLabel();
         txtTitolo = new javax.swing.JLabel();
         BottoneGioca = new javax.swing.JButton();
+        lblSchermataHome = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -215,10 +271,12 @@ public class Grafica extends javax.swing.JFrame {
         Panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Ravie", 3, 24)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 51, 51));
         jLabel1.setText("Punteggio: ");
         Panel.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, 32));
 
         txtPunteggio.setFont(new java.awt.Font("Ravie", 3, 24)); // NOI18N
+        txtPunteggio.setForeground(new java.awt.Color(255, 51, 51));
         txtPunteggio.setText("0");
         Panel.add(txtPunteggio, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 27, 160, 40));
 
@@ -312,7 +370,12 @@ public class Grafica extends javax.swing.JFrame {
         BucaLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BucaTalpa1.png"))); // NOI18N
         Panel.add(BucaLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 220, 80, 56));
 
+        lblTerreno.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Prato.png"))); // NOI18N
+        lblTerreno.setText("jLabel2");
+        Panel.add(lblTerreno, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 190, -1, -1));
+
         txtTitolo.setFont(new java.awt.Font("Rockwell Extra Bold", 3, 36)); // NOI18N
+        txtTitolo.setForeground(new java.awt.Color(255, 255, 51));
         txtTitolo.setText("Whac-A-Mole");
 
         BottoneGioca.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
@@ -323,35 +386,47 @@ public class Grafica extends javax.swing.JFrame {
             }
         });
 
+        lblSchermataHome.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/SchermataHome.png"))); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(Panel, javax.swing.GroupLayout.DEFAULT_SIZE, 779, Short.MAX_VALUE)
+            .addComponent(Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                    .addContainerGap(328, Short.MAX_VALUE)
+                    .addContainerGap(696, Short.MAX_VALUE)
                     .addComponent(BottoneGioca, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(341, Short.MAX_VALUE)))
+                    .addContainerGap(708, Short.MAX_VALUE)))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                    .addContainerGap(240, Short.MAX_VALUE)
+                    .addContainerGap(607, Short.MAX_VALUE)
                     .addComponent(txtTitolo)
-                    .addContainerGap(240, Short.MAX_VALUE)))
+                    .addContainerGap(608, Short.MAX_VALUE)))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(lblSchermataHome)
+                    .addGap(0, 0, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(Panel, javax.swing.GroupLayout.DEFAULT_SIZE, 518, Short.MAX_VALUE)
+            .addComponent(Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                    .addContainerGap(241, Short.MAX_VALUE)
-                    .addComponent(BottoneGioca, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(230, Short.MAX_VALUE)))
+                    .addContainerGap(408, Short.MAX_VALUE)
+                    .addComponent(BottoneGioca, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(134, Short.MAX_VALUE)))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addContainerGap()
                     .addComponent(txtTitolo, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(415, Short.MAX_VALUE)))
+                    .addContainerGap(495, Short.MAX_VALUE)))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(lblSchermataHome)
+                    .addGap(0, 0, Short.MAX_VALUE)))
         );
 
         pack();
@@ -464,6 +539,8 @@ public class Grafica extends javax.swing.JFrame {
     private javax.swing.JLabel BucaLabel8;
     private javax.swing.JPanel Panel;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel lblSchermataHome;
+    private javax.swing.JLabel lblTerreno;
     private javax.swing.JLabel txtPunteggio;
     private javax.swing.JLabel txtTitolo;
     // End of variables declaration//GEN-END:variables
