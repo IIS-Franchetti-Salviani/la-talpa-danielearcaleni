@@ -4,11 +4,11 @@
  */
 package whacamole;
 import java.awt.Image;
-import java.awt.GridLayout;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
 /**
  *
  * @author compu
@@ -18,9 +18,10 @@ public class Grafica extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Grafica.class.getName());
     private Gestore gestore = new Gestore();
     private ArrayList<JButton> bottoni = new ArrayList<>();
-    private javax.swing.Timer timer;
+    private ArrayList<JLabel> buche = new ArrayList<>();
     Gestore punti = new Gestore();
-    private Image immagineSfondo;
+    private boolean giocoAttivo = true;
+    private Thread threadTalpa;
     
     
     /**
@@ -28,49 +29,137 @@ public class Grafica extends javax.swing.JFrame {
      */
     public Grafica() {
         initComponents();
-        ImageIcon originalIcon = new ImageIcon(getClass().getResource("/images/TalpaVera.png"));
+        Panel.setLayout(null);
+        Panel.setBounds(0, 0, getWidth(), getHeight());
+        Panel.setVisible(true);
 
-        int nuovaLarghezza = originalIcon.getIconWidth() / 2;
-        int nuovaAltezza = originalIcon.getIconHeight() / 2;
-        ImageIcon talpaIcon = new ImageIcon(originalIcon.getImage().getScaledInstance(nuovaLarghezza, nuovaAltezza, Image.SCALE_SMOOTH));
+        this.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                Panel.setBounds(0, 0, getWidth(), getHeight());
+                ridimensionaElementi(new ImageIcon(getClass().getResource("/images/BucaTalpa1.png")),
+                                     new ImageIcon(getClass().getResource("/images/TalpaVera.png")));
+                Panel.revalidate();
+                Panel.repaint();
+            }
+        });
+        ImageIcon iconTalpa = new ImageIcon(getClass().getResource("/images/TalpaVera.png"));
+        int nuovaLarghezza = iconTalpa.getIconWidth() / 2;
+        int nuovaAltezza = iconTalpa.getIconHeight() / 2;
+        ImageIcon talpaIconRidimensionata = new ImageIcon(iconTalpa.getImage().getScaledInstance(nuovaLarghezza, nuovaAltezza, Image.SCALE_SMOOTH));
+                
+        ArrayList<JLabel> buche = new ArrayList<>();
+        buche.add(BucaLabel);
+        buche.add(BucaLabel1);
+        buche.add(BucaLabel2);
+        buche.add(BucaLabel3);
+        buche.add(BucaLabel4);
+        buche.add(BucaLabel5);
+        buche.add(BucaLabel6);
+        buche.add(BucaLabel7);
+        buche.add(BucaLabel8);
+        
+        ImageIcon iconBucaOriginale = new ImageIcon(getClass().getResource("/images/BucaTalpa1.png"));
+        
+        ridimensionaElementi(iconBucaOriginale, iconTalpa);
 
+        for (JLabel buca : buche) {
+            int larghezza = (buca.getWidth() > 0) ? buca.getWidth() : 10;
+            int altezza = (buca.getHeight() > 0) ? buca.getHeight() : 5;
+            Image imgBuca = iconBucaOriginale.getImage().getScaledInstance(larghezza, altezza, Image.SCALE_SMOOTH);
+            buca.setIcon(new ImageIcon(imgBuca));
+        }
+        
+        int larghezzaTalpa = 20;
+        int altezzaTalpa = 20;
 
-    bottoni.add(Bottone1);
-    bottoni.add(Bottone2);
-    bottoni.add(Bottone3);
-    bottoni.add(Bottone4);
-    bottoni.add(Bottone5);
-    bottoni.add(Bottone6);
-    bottoni.add(Bottone7);
-    bottoni.add(Bottone8);
-    bottoni.add(Bottone9);
+        bottoni.add(Bottone1);
+        bottoni.add(Bottone2);
+        bottoni.add(Bottone3);
+        bottoni.add(Bottone4);
+        bottoni.add(Bottone5);
+        bottoni.add(Bottone6);
+        bottoni.add(Bottone7);
+        bottoni.add(Bottone8);
+        bottoni.add(Bottone9);
     
+        for (int i = 0; i < bottoni.size(); i++) {
+            JButton t = bottoni.get(i);
+            JLabel buca = buche.get(i);
+
+            t.setBounds(buca.getX() + (buca.getWidth() - nuovaLarghezza) / 2,
+                        buca.getY() - nuovaAltezza / 2,
+                        nuovaLarghezza,
+                        nuovaAltezza);
+            t.setOpaque(false);
+            t.setContentAreaFilled(false);
+            t.setBorderPainted(false);
+            t.setVisible(false);
+            t.setIcon(talpaIconRidimensionata);
+        }
     
-    for (JButton b : bottoni) {
-        b.setIcon(talpaIcon);
-        b.setBorderPainted(false);
-        b.setContentAreaFilled(false);
-        b.setFocusPainted(false);
-        b.setOpaque(false);
-        b.setSize(nuovaLarghezza, nuovaAltezza);
-        b.setPreferredSize(new java.awt.Dimension(nuovaLarghezza, nuovaAltezza));
-    }
-    
-        Panel.setLayout(new GridLayout(3, 3, 10, 10));
         for (JButton b : bottoni) {
-            Panel.add(b);
+            b.setIcon(talpaIconRidimensionata);
+            b.setOpaque(false);
+            b.setContentAreaFilled(false);
+            b.setBorderPainted(false);
+            b.setVisible(false);
         }
         
     Panel.setVisible(false);
     nascondiTutto();
 
-    timer = new javax.swing.Timer(1000, e -> mostraTalpa());
-    timer.start();
-        
+        threadTalpa = new Thread(() -> {
+            while (giocoAttivo) {
+                try {
+                    Thread.sleep(1000);
+
+                    SwingUtilities.invokeLater(() -> mostraTalpa());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    break;
+                }
+            }
+        });
+        threadTalpa.start();
     }
+    
     private void nascondiTutto() {
         for (JButton b : bottoni) {
             b.setVisible(false);
+        }
+    }
+    
+    private void ridimensionaElementi(ImageIcon iconBuca, ImageIcon iconTalpa) {
+        int panelWidth = Panel.getWidth() > 0 ? Panel.getWidth() : 300;
+        int panelHeight = Panel.getHeight() > 0 ? Panel.getHeight() : 300;
+
+        int colonne = 3;
+        int righe = 3;
+        int distanzaX = panelWidth / colonne;
+        int distanzaY = panelHeight / righe;
+
+        for (int i = 0; i < buche.size(); i++) {
+            JLabel buca = buche.get(i);
+
+            int x = (i % colonne) * distanzaX + distanzaX / 4;
+            int y = (i / colonne) * distanzaY + distanzaY / 4;
+            int larghezzaBuca = distanzaX / 2;
+            int altezzaBuca = distanzaY / 3;
+
+            buca.setBounds(x, y, larghezzaBuca, altezzaBuca);
+            Image imgBuca = iconBuca.getImage().getScaledInstance(larghezzaBuca, altezzaBuca, Image.SCALE_SMOOTH);
+            buca.setIcon(new ImageIcon(imgBuca));
+
+            JButton t = bottoni.get(i);
+            int larghezzaTalpa = larghezzaBuca / 2;
+            int altezzaTalpa = altezzaBuca / 2;
+            int xTalpa = x + (larghezzaBuca - larghezzaTalpa) / 2;
+            int yTalpa = y + (altezzaBuca - altezzaTalpa) / 2;
+
+            t.setBounds(xTalpa, yTalpa, larghezzaTalpa, altezzaTalpa);
+            Image imgTalpa = iconTalpa.getImage().getScaledInstance(larghezzaTalpa, altezzaTalpa, Image.SCALE_SMOOTH);
+            t.setIcon(new ImageIcon(imgTalpa));
         }
     }
     
@@ -79,6 +168,13 @@ public class Grafica extends javax.swing.JFrame {
 
         int indice = gestore.esciTalpa();
         bottoni.get(indice).setVisible(true);
+    }
+    
+    public void fermaGioco() {
+        giocoAttivo = false;
+        if (threadTalpa != null) {
+            threadTalpa.interrupt();
+        }
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -90,6 +186,8 @@ public class Grafica extends javax.swing.JFrame {
     private void initComponents() {
 
         Panel = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        txtPunteggio = new javax.swing.JLabel();
         Bottone2 = new javax.swing.JButton();
         Bottone5 = new javax.swing.JButton();
         Bottone3 = new javax.swing.JButton();
@@ -99,148 +197,123 @@ public class Grafica extends javax.swing.JFrame {
         Bottone4 = new javax.swing.JButton();
         Bottone9 = new javax.swing.JButton();
         Bottone1 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        txtPunteggio = new javax.swing.JLabel();
-        BottoneGioca = new javax.swing.JButton();
+        BucaLabel = new javax.swing.JLabel();
+        BucaLabel1 = new javax.swing.JLabel();
+        BucaLabel2 = new javax.swing.JLabel();
+        BucaLabel3 = new javax.swing.JLabel();
+        BucaLabel4 = new javax.swing.JLabel();
+        BucaLabel5 = new javax.swing.JLabel();
+        BucaLabel6 = new javax.swing.JLabel();
+        BucaLabel7 = new javax.swing.JLabel();
+        BucaLabel8 = new javax.swing.JLabel();
         txtTitolo = new javax.swing.JLabel();
+        BottoneGioca = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         Panel.setBackground(new java.awt.Color(255, 255, 255));
+        Panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel1.setFont(new java.awt.Font("Ravie", 3, 24)); // NOI18N
+        jLabel1.setText("Punteggio: ");
+        Panel.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, 32));
+
+        txtPunteggio.setFont(new java.awt.Font("Ravie", 3, 24)); // NOI18N
+        txtPunteggio.setText("0");
+        Panel.add(txtPunteggio, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 27, 160, 40));
 
         Bottone2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Bottone2ActionPerformed(evt);
             }
         });
+        Panel.add(Bottone2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 190, -1, 48));
 
         Bottone5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Bottone5ActionPerformed(evt);
             }
         });
+        Panel.add(Bottone5, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 100, -1, 48));
 
         Bottone3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Bottone3ActionPerformed(evt);
             }
         });
+        Panel.add(Bottone3, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 390, -1, 47));
 
         Bottone7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Bottone7ActionPerformed(evt);
             }
         });
+        Panel.add(Bottone7, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 220, -1, 44));
 
         Bottone6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Bottone6ActionPerformed(evt);
             }
         });
+        Panel.add(Bottone6, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 140, -1, 47));
 
         Bottone8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Bottone8ActionPerformed(evt);
             }
         });
+        Panel.add(Bottone8, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 240, -1, 48));
 
         Bottone4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Bottone4ActionPerformed(evt);
             }
         });
+        Panel.add(Bottone4, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 350, -1, 47));
 
         Bottone9.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Bottone9ActionPerformed(evt);
             }
         });
+        Panel.add(Bottone9, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 360, 74, 57));
 
         Bottone1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Bottone1ActionPerformed(evt);
             }
         });
+        Panel.add(Bottone1, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 220, -1, 44));
 
-        jLabel1.setFont(new java.awt.Font("Ravie", 3, 18)); // NOI18N
-        jLabel1.setText("Punteggio: ");
+        BucaLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BucaTalpa1.png"))); // NOI18N
+        Panel.add(BucaLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 370, 80, 56));
 
-        txtPunteggio.setFont(new java.awt.Font("Ravie", 3, 18)); // NOI18N
-        txtPunteggio.setText("0");
+        BucaLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BucaTalpa1.png"))); // NOI18N
+        Panel.add(BucaLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 120, 80, 55));
 
-        javax.swing.GroupLayout PanelLayout = new javax.swing.GroupLayout(Panel);
-        Panel.setLayout(PanelLayout);
-        PanelLayout.setHorizontalGroup(
-            PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(PanelLayout.createSequentialGroup()
-                .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(PanelLayout.createSequentialGroup()
-                        .addGap(144, 144, 144)
-                        .addComponent(Bottone7)
-                        .addGap(40, 40, 40)
-                        .addComponent(Bottone8)
-                        .addGap(85, 85, 85)
-                        .addComponent(Bottone4))
-                    .addGroup(PanelLayout.createSequentialGroup()
-                        .addGap(424, 424, 424)
-                        .addComponent(Bottone3)
-                        .addGap(1861, 1861, 1861)
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtPunteggio, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(PanelLayout.createSequentialGroup()
-                        .addGap(58, 58, 58)
-                        .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(Bottone5)
-                            .addGroup(PanelLayout.createSequentialGroup()
-                                .addComponent(Bottone9, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(69, 69, 69)
-                                .addComponent(Bottone2)))
-                        .addGap(36, 36, 36)
-                        .addComponent(Bottone6)
-                        .addGap(77, 77, 77)
-                        .addComponent(Bottone1)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        PanelLayout.setVerticalGroup(
-            PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(PanelLayout.createSequentialGroup()
-                .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelLayout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelLayout.createSequentialGroup()
-                                .addComponent(Bottone9, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(108, 108, 108)
-                                .addComponent(Bottone5, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelLayout.createSequentialGroup()
-                                .addComponent(Bottone7, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(36, 36, 36)
-                                .addComponent(Bottone2, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(PanelLayout.createSequentialGroup()
-                        .addGap(80, 80, 80)
-                        .addComponent(Bottone3, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelLayout.createSequentialGroup()
-                                .addGap(58, 58, 58)
-                                .addComponent(Bottone8, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(PanelLayout.createSequentialGroup()
-                                .addGap(76, 76, 76)
-                                .addComponent(Bottone4, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)))
-                        .addComponent(Bottone6, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(12, 12, 12)))
-                .addGap(79, 79, 79))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(Bottone1, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(txtPunteggio)))
-                .addGap(63, 63, 63))
-        );
+        BucaLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BucaTalpa1.png"))); // NOI18N
+        Panel.add(BucaLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 240, 80, 56));
+
+        BucaLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BucaTalpa1.png"))); // NOI18N
+        Panel.add(BucaLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 410, 80, 56));
+
+        BucaLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BucaTalpa1.png"))); // NOI18N
+        Panel.add(BucaLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 110, 80, 56));
+
+        BucaLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BucaTalpa1.png"))); // NOI18N
+        Panel.add(BucaLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 260, 80, 55));
+
+        BucaLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BucaTalpa1.png"))); // NOI18N
+        Panel.add(BucaLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 240, 80, 56));
+
+        BucaLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BucaTalpa1.png"))); // NOI18N
+        Panel.add(BucaLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 390, 80, 56));
+
+        BucaLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BucaTalpa1.png"))); // NOI18N
+        Panel.add(BucaLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 220, 80, 56));
+
+        txtTitolo.setFont(new java.awt.Font("Rockwell Extra Bold", 3, 36)); // NOI18N
+        txtTitolo.setText("Whac-A-Mole");
 
         BottoneGioca.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         BottoneGioca.setText("Gioca");
@@ -250,34 +323,35 @@ public class Grafica extends javax.swing.JFrame {
             }
         });
 
-        txtTitolo.setFont(new java.awt.Font("Rockwell Extra Bold", 3, 36)); // NOI18N
-        txtTitolo.setText("Whac-A-Mole");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(Panel, javax.swing.GroupLayout.PREFERRED_SIZE, 727, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(Panel, javax.swing.GroupLayout.DEFAULT_SIZE, 779, Short.MAX_VALUE)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(214, 214, 214)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(txtTitolo)
-                        .addGroup(layout.createSequentialGroup()
-                            .addGap(104, 104, 104)
-                            .addComponent(BottoneGioca, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addContainerGap(214, Short.MAX_VALUE)))
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(328, Short.MAX_VALUE)
+                    .addComponent(BottoneGioca, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(341, Short.MAX_VALUE)))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(240, Short.MAX_VALUE)
+                    .addComponent(txtTitolo)
+                    .addContainerGap(240, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(Panel, javax.swing.GroupLayout.DEFAULT_SIZE, 518, Short.MAX_VALUE)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(241, Short.MAX_VALUE)
+                    .addComponent(BottoneGioca, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(230, Short.MAX_VALUE)))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
-                    .addGap(137, 137, 137)
-                    .addComponent(txtTitolo, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(61, 61, 61)
-                    .addComponent(BottoneGioca, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(137, Short.MAX_VALUE)))
+                    .addContainerGap()
+                    .addComponent(txtTitolo, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(415, Short.MAX_VALUE)))
         );
 
         pack();
@@ -379,6 +453,15 @@ public class Grafica extends javax.swing.JFrame {
     private javax.swing.JButton Bottone8;
     private javax.swing.JButton Bottone9;
     private javax.swing.JButton BottoneGioca;
+    private javax.swing.JLabel BucaLabel;
+    private javax.swing.JLabel BucaLabel1;
+    private javax.swing.JLabel BucaLabel2;
+    private javax.swing.JLabel BucaLabel3;
+    private javax.swing.JLabel BucaLabel4;
+    private javax.swing.JLabel BucaLabel5;
+    private javax.swing.JLabel BucaLabel6;
+    private javax.swing.JLabel BucaLabel7;
+    private javax.swing.JLabel BucaLabel8;
     private javax.swing.JPanel Panel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel txtPunteggio;
