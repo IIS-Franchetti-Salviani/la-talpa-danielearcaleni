@@ -12,6 +12,8 @@ import java.util.Random;
  */
 public class Gestore {
 
+    private int punteggio;
+    
     private ArrayList<Talpa> talpe = new ArrayList<>();
     private Random rd = new Random();
 
@@ -21,5 +23,16 @@ public class Gestore {
 
     public void addTalpa(Talpa t){
         talpe.add(t);
+    }
+    public int getPunteggio(){
+        return punteggio;
+    }
+    public void setPunteggio(int punti){
+        punteggio += punti;
+    }
+    
+    @Override
+    public String toString(){
+        return "" + punteggio;
     }
 }
