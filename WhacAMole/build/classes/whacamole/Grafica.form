@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.3" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
+  <Properties>
+    <Property name="defaultCloseOperation" type="int" value="3"/>
+  </Properties>
+  <SyntheticProperties>
+    <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+    <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
+  </SyntheticProperties>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Container class="javax.swing.JPanel" name="jPanel1">
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <EmptySpace min="-2" pref="108" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="Bottone1" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="Bottone2" min="-2" max="-2" attributes="0"/>
+                      <Component id="Bottone3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="-2" pref="69" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="Bottone4" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="Bottone5" min="-2" max="-2" attributes="0"/>
+                      <Component id="Bottone6" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="-2" pref="75" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="Bottone7" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="Bottone8" min="-2" max="-2" attributes="0"/>
+                      <Component id="Bottone9" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace pref="120" max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="1" attributes="0">
+                  <EmptySpace pref="113" max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                      <Component id="Bottone7" max="32767" attributes="0"/>
+                      <Component id="Bottone1" alignment="1" max="32767" attributes="0"/>
+                      <Component id="Bottone4" alignment="1" min="-2" pref="48" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="-2" pref="55" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="Bottone9" alignment="0" min="-2" pref="48" max="-2" attributes="0"/>
+                      <Component id="Bottone5" alignment="0" min="-2" pref="48" max="-2" attributes="0"/>
+                      <Component id="Bottone2" min="-2" pref="48" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="-2" pref="52" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="Bottone3" min="-2" pref="48" max="-2" attributes="0"/>
+                      <Component id="Bottone6" min="-2" pref="48" max="-2" attributes="0"/>
+                      <Component id="Bottone8" min="-2" pref="48" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="-2" pref="109" max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Component class="javax.swing.JButton" name="Bottone1">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Talpa1"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="Bottone1ActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="Bottone2">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Talpa4"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="Bottone3">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Talpa7"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="Bottone4">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Talpa2"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="Bottone5">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Talpa5"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="Bottone6">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Talpa8"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="Bottone7">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Talpa3"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="Bottone8">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Talpa9"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="Bottone9">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Talpa6"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+  </SubComponents>
+</Form>
